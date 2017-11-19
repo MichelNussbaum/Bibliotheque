@@ -24,6 +24,8 @@ public class Controller extends HttpServlet {
      */
     public Controller() {
         // TODO Auto-generated constructor stub
+    	
+    	// Setup the context
     	this.library = setupTestLibrary();
     	this.users = setupTestUsers();
     }
