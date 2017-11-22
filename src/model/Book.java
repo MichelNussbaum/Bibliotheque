@@ -1,16 +1,22 @@
 package model;
 
-import java.util.ArrayList;
-
 public class Book {
 	private String author;
 	private String title;
-	private ArrayList<Copy> copies;
+	private int nbCopy;
 	
-	public Book(String author, String title, ArrayList<Copy> copies) {
+	public Book(String author, String title, int nbCopy) {
 		this.author = author;
 		this.title = title;
-		this.copies = copies;
+		this.nbCopy = nbCopy;
+	}
+
+	public int getNbCopy() {
+		return nbCopy;
+	}
+
+	public void setNbCopy(int nbCopy) {
+		this.nbCopy = nbCopy;
 	}
 
 	public String getAuthor() {
@@ -27,26 +33,6 @@ public class Book {
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public ArrayList<Copy> getCopies() {
-		return copies;
-	}
-
-	public void setCopies(ArrayList<Copy> copies) {
-		this.copies = copies;
-	}
-	
-	public int getNumberOfCopyRemaining(){
-		int res = 0;
-		int borrowed = 0;
-		for (Copy copy : this.copies) {
-			if(copy.isBorrowed()){
-				borrowed++;
-			}
-		}
-		res = this.copies.size() - borrowed;
-		return res;
 	}
 	
 }

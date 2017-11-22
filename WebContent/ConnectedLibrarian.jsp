@@ -20,6 +20,7 @@
 		Titre : <input name="title" type="text"><br>
 		Auteur : <input name="author" type="text"><br>
 		Numéro d'exemplaire<input name="copyNumber" type="number"><br>
+		Login du membre :<input name="login" type="text"><br>
 		<input type="submit" value="Ajouter">
 		<input type="submit" value="Supprimer">
 		<input type="submit" value="Emprunter">

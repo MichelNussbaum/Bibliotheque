@@ -10,8 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import model.Book;
-import model.Copy;
+import model.Borrow;
 import model.Library;
+import model.Reservation;
 import model.User;
 
 @WebServlet("/Controller")
@@ -24,8 +25,6 @@ public class Controller extends HttpServlet {
      */
     public Controller() {
         // TODO Auto-generated constructor stub
-    	
-    	// Setup the context  
     	this.library = setupTestLibrary();
     	this.users = setupTestUsers();
     }
@@ -37,17 +36,16 @@ public class Controller extends HttpServlet {
 
 	private Library setupTestLibrary() {
 		// TODO Auto-generated method stub
-		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",new ArrayList<Copy>());
-		maxEtLili.getCopies().add(new Copy(1,true));
-		maxEtLili.getCopies().add(new Copy(2,false));
-		Book bouleEtBill = new Book("Michel","Boule et Bill en vacances",new ArrayList<Copy>());
-		bouleEtBill.getCopies().add(new Copy(1,true));
-		bouleEtBill.getCopies().add(new Copy(2,true));
-		bouleEtBill.getCopies().add(new Copy(3,false));
+		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",3);
+		Book bouleEtBill = new Book("Michel","Boule et Bill en vacances",2);
 		ArrayList<Book> books = new ArrayList<Book>();
 		books.add(maxEtLili);
 		books.add(bouleEtBill);
-		Library library = new Library(books); 
+		ArrayList<Borrow> borrows = new ArrayList<Borrow>();
+		borrows.add(new Borrow("Leslie", maxEtLili));
+		borrows.add(new Borrow("Michel", bouleEtBill));
+		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
+		Library library = new Library(books,borrows,reservations); 
 		return library;
 	}
 
@@ -87,7 +85,7 @@ public class Controller extends HttpServlet {
 			}
 		}
 		if(b!=null){
-			response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getCopies().size()+"&remaining="+b.getNumberOfCopyRemaining());
+			response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
 		}else{
 			response.sendRedirect("Home.jsp?search=failed");
 		}
@@ -102,7 +100,7 @@ public class Controller extends HttpServlet {
 			}
 		}
 		if(b!=null){
-			response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getCopies().size()+"&remaining="+b.getNumberOfCopyRemaining());
+			response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
 		}else{
 			response.sendRedirect("Home.jsp?search=failed");
 		}
