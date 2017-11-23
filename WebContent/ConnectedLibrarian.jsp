@@ -37,7 +37,14 @@
 </jsp:include>
 <% }else{
 	if(request.getParameter("search") != null && request.getParameter("search").equals("failed")){ %>
-	<h3>Aucun livre ne correspond à votre recherhce</h3>	
+	<h3>Aucun livre ne correspond à votre recherche</h3>	
+<% }
+} %>
+<% if(request.getParameter("borrow") != null && request.getParameter("borrow").equals("success")){ %>
+	<h3>Livre emprunté !</h3>
+<% }else{
+	if(request.getParameter("borrow") != null && request.getParameter("borrow").equals("failed")){ %>
+	<h3>Plus d'exemplaire disponible !</h3>	
 <% }
 } %>
 </body>

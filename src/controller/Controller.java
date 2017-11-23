@@ -41,16 +41,18 @@ public class Controller extends HttpServlet {
 
 	private Library setupTestLibrary() {
 		// TODO Auto-generated method stub
+		ArrayList<User> users = setupTestUsers();
+		
 		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",3);
 		Book bouleEtBill = new Book("Michel","Boule et Bill en vacances",2);
 		ArrayList<Book> books = new ArrayList<Book>();
 		books.add(maxEtLili);
 		books.add(bouleEtBill);
+		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
 		ArrayList<Borrow> borrows = new ArrayList<Borrow>();
+		Library library = new Library(books,borrows,reservations, users); 		
 		borrows.add(new Borrow((Member)library.getUsers().get(1), maxEtLili));
 		borrows.add(new Borrow((Member)library.getUsers().get(1), bouleEtBill));
-		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
-		Library library = new Library(books,borrows,reservations, setupTestUsers()); 
 		return library;
 	}
 
