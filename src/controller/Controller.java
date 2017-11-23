@@ -96,7 +96,16 @@ public class Controller extends HttpServlet {
 					break;
 				}
 				
+				case "Restituer":
+					bookRestitution(request, response);
+					break;
+				
 		}
+	}
+
+	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void borrowBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
