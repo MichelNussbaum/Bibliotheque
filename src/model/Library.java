@@ -102,4 +102,13 @@ public class Library {
 		}
 		return null;
 	}
+	
+	public Borrow getBorrow(Member member, Book book){
+		for (Borrow borrow : borrows) {
+			if (borrow.getMember().equals(member) && borrow.getBook().equals(book)){
+				return borrow;
+			}
+		}
+		return null;
+	}
 }
