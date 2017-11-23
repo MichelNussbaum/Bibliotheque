@@ -2,6 +2,8 @@ package model;
 
 import java.util.ArrayList;
 
+import org.apache.jasper.tagplugins.jstl.ForEach;
+
 public class Library {
 	private ArrayList<Book> books;
 	private ArrayList<Borrow> borrows;
@@ -56,4 +58,19 @@ public class Library {
 	public void addBook(Book book){
 		books.add(book);
 	}
+	
+	public void deleteBook(Book book){
+		books.remove(book);
+	}
+	
+	public Book getBook(String title, String author){
+		for (Book book : books) {
+			if (book.getTitle().equals(title) && book.getAuthor().equals(author)){
+				return book;
+			}			
+		};
+		return null; 
+	}
+	
+	
 }

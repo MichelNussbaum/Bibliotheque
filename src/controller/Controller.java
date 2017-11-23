@@ -79,15 +79,24 @@ public class Controller extends HttpServlet {
 				case "Ajouter":
 					addBook(request, response);
 					break;
-					
+				
+				case "Supprimer":
+					deleteBook(request, response);
+					break;
 				}
 					 
 		}
 	}
 
-	private void addBook(HttpServletRequest request, HttpServletResponse response) {
+	private void deleteBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		library.deleteBook(library.getBook(request.getParameter("title"), request.getParameter("author")));
+		response.sendRedirect("ConnectedLibrarian.jsp");
+	}
+
+	private void addBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Book book = new Book(request.getParameter("author"), request.getParameter("title"), Integer.parseInt(request.getParameter("nbOfCopy")));
 		library.addBook(book);
+		response.sendRedirect("ConnectedLibrarian.jsp");
 	}
 
 	private void searchByAuthor(HttpServletRequest request, HttpServletResponse response) throws IOException {
