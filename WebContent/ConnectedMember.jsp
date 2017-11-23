@@ -19,6 +19,7 @@
 	<form action="Controller" method="POST">
 		Titre : <input name="title" type="text"><br>
 		Auteur : <input name="author" type="text"><br>
+		<input name="form" value="actionMember" type="hidden">
 		<input type="submit" value="Reserver">
 		<input type="submit" value="Annuler reservation">
 	</form>

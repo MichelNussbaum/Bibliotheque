@@ -83,24 +83,41 @@ public class Controller extends HttpServlet {
 			
 			case "actionLibrarian":
 				switch( request.getParameter("submit")){
-				case "Ajouter":
-					addBook(request, response);
-					break;
-				
-				case "Supprimer":
-					deleteBook(request, response);
+					case "Ajouter":
+						addBook(request, response);
+						break;
+					
+					case "Supprimer":
+						deleteBook(request, response);
+						break;
+						
+					case "Emprunter":
+						borrowBook(request, response);
+						break;
+						
+					case "Restituer":
+						bookRestitution(request, response);
+						break;
+				}
+			break;
+			
+			case "actionMember":
+				switch (request.getParameter("submit")) {
+				case "Reserver":
+					
 					break;
 					
-				case "Emprunter":
-					borrowBook(request, response);
+				case "Annuler reservation":
+					
+					break;
+
+				default:
 					break;
 				}
-				
-				case "Restituer":
-					bookRestitution(request, response);
-					break;
-				
+			break;
+					
 		}
+			
 	}
 
 	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) {
