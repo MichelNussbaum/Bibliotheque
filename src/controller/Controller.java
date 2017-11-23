@@ -11,7 +11,9 @@ import javax.servlet.http.HttpSession;
 
 import model.Book;
 import model.Borrow;
+import model.Librarian;
 import model.Library;
+import model.Member;
 import model.Reservation;
 import model.User;
 
@@ -30,8 +32,12 @@ public class Controller extends HttpServlet {
     }
 
 	private ArrayList<User> setupTestUsers() {
-
-		return null;
+		ArrayList<User> users = new ArrayList<User>();
+		User u1 = new Librarian("Leslie", "ros");
+		User u2 = new Member("Michel","nuss");
+		users.add(u1);
+		users.add(u2);
+		return users;
 	}
 
 	private Library setupTestLibrary() {
@@ -147,12 +153,22 @@ public class Controller extends HttpServlet {
 		else{
 			session= request.getSession(false);
 		}
-		if (session.getAttribute("login").equals("leslie") && session.getAttribute("password").equals("ros")){
-			response.sendRedirect("ConnectedLibrarian.jsp");
-			session.setAttribute("userType", "librarian");
-		}else if(session.getAttribute("login").equals("michel") && session.getAttribute("password").equals("nuss")){
-			response.sendRedirect("ConnectedMember.jsp");
-			session.setAttribute("userType", "member");
+		if (session.getAttribute("login") != null){
+			for(User u : users){
+				if(u.getLogin().equals(session.getAttribute("login"))){
+					if(u.getPassword().equals(session.getAttribute("password"))){
+						if(u instanceof Librarian){
+							response.sendRedirect("ConnectedLibrarian.jsp");
+							session.setAttribute("userType", "librarian");
+						}else if(u instanceof Member){
+							response.sendRedirect("ConnectedMember.jsp");
+							session.setAttribute("userType", "member");
+						}
+					}else{
+						System.out.println("Mot de passe erroné");
+					}
+				}
+			}
 		}else{
 			response.sendRedirect("Home.jsp");
 		}
