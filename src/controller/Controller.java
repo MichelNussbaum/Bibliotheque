@@ -73,7 +73,21 @@ public class Controller extends HttpServlet {
 					break;
 				}
 			break;
+			
+			case "actionLibrarian":
+				switch( request.getParameter("submit")){
+				case "Ajouter":
+					addBook(request, response);
+					break;
+					
+				}
+					 
 		}
+	}
+
+	private void addBook(HttpServletRequest request, HttpServletResponse response) {
+		Book book = new Book(request.getParameter("author"), request.getParameter("title"), Integer.parseInt(request.getParameter("nbOfCopy")));
+		library.addBook(book);
 	}
 
 	private void searchByAuthor(HttpServletRequest request, HttpServletResponse response) throws IOException {

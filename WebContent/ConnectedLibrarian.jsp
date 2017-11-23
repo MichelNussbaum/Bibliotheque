@@ -17,14 +17,15 @@
 <div>
 	<h2>Action : </h2>
 	<form action="Controller" method="POST">
+		<input name="form" value="actionLibrarian" type="hidden">
 		Titre : <input name="title" type="text"><br>
 		Auteur : <input name="author" type="text"><br>
-		Numéro d'exemplaire<input name="copyNumber" type="number"><br>
+		Nombre d'exemplaires : <input name="nbOfCopy" type="number"><br>
 		Login du membre :<input name="login" type="text"><br>
-		<input type="submit" value="Ajouter">
-		<input type="submit" value="Supprimer">
-		<input type="submit" value="Emprunter">
-		<input type="submit" value="Restituer">
+		<input type="submit" value="Ajouter" name="submit" >
+		<input type="submit" value="Supprimer" name="submit">
+		<input type="submit" value="Emprunter" name="submit">
+		<input type="submit" value="Restituer" name="submit">
 	</form>
 </div>
 </body>
