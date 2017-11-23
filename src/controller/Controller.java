@@ -104,7 +104,7 @@ public class Controller extends HttpServlet {
 	}
 
 	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) {
-		// TODO Auto-generated method stub
+		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
 		
 	}
 
