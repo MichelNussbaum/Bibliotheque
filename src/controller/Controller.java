@@ -104,11 +104,11 @@ public class Controller extends HttpServlet {
 			case "actionMember":
 				switch (request.getParameter("submit")) {
 				case "Reserver":
-					
+						bookingBook(request,response);
 					break;
 					
 				case "Annuler reservation":
-					
+						cancelBookingBook(request,response);
 					break;
 
 				default:
@@ -118,6 +118,21 @@ public class Controller extends HttpServlet {
 					
 		}
 			
+	}
+
+	private void cancelBookingBook(HttpServletRequest request, HttpServletResponse response) {
+		
+	}
+
+	private void bookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
+		if (library.nbReservationRemaining(book) != 0){
+			library.getReservations().add(new Reservation((Member)library.getUserFromLogin(request.getParameter("login")),book));
+			response.sendRedirect("ConnectedMember.jsp?reservation=success");
+		}
+		else {
+			response.sendRedirect("ConnectedMember.jsp?reservation=failed");
+		}
 	}
 
 	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) {

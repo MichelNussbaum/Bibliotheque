@@ -20,8 +20,8 @@
 		Titre : <input name="title" type="text"><br>
 		Auteur : <input name="author" type="text"><br>
 		<input name="form" value="actionMember" type="hidden">
-		<input type="submit" value="Reserver">
-		<input type="submit" value="Annuler reservation">
+		<input type="submit" name="submit" value="Reserver">
+		<input type="submit" name="submit" value="Annuler reservation">
 	</form>
 </div>
 <% if(request.getParameter("search") != null && request.getParameter("search").equals("success")){ %>
@@ -34,6 +34,13 @@
 <% }else{
 	if(request.getParameter("search") != null && request.getParameter("search").equals("failed")){ %>
 	<h3>Aucun livre ne correspond à votre recherhce</h3>	
+<% }
+} %>
+<% if(request.getParameter("reservation") != null && request.getParameter("reservation").equals("success")){ %>
+	<h3>Livre réservé !</h3>
+<% }else{
+	if(request.getParameter("reservation") != null && request.getParameter("reservation").equals("failed")){ %>
+	<h3>Plus d'exemplaire disponible à la réservation !</h3>	
 <% }
 } %>
 </body>

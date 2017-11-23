@@ -67,6 +67,16 @@ public class Library {
 		return nbOfCopyRemaining;
 	}
 	
+	public int nbReservationRemaining(Book book){
+		int nbOfCopyRemaining = nbCopyRemaining(book);
+		for (Reservation reservation : reservations) {
+			if(reservation.getBook() == book){
+				nbOfCopyRemaining--;
+			}
+		}
+		return nbOfCopyRemaining;
+	}
+	
 	public void addBook(Book book){
 		books.add(book);
 	}
