@@ -113,10 +113,19 @@ public class Controller extends HttpServlet {
 				b = book;
 			}
 		}
+		HttpSession session = request.getSession();
 		if(b!=null){
-			response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+			if(session.getAttribute("userType") != null){
+				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+			}else{ 
+				response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+			}
 		}else{
-			response.sendRedirect("Home.jsp?search=failed");
+			if(session.getAttribute("userType") != null){
+				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=failed");
+			}else{
+				response.sendRedirect("Home.jsp?search=failed");
+			}
 		}
 	}
 
@@ -128,10 +137,21 @@ public class Controller extends HttpServlet {
 				b = book;
 			}
 		}
+		HttpSession session = request.getSession();
 		if(b!=null){
-			response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+			
+			if(session.getAttribute("userType") != null){
+				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+			}else{ 
+				response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+			}
+			
 		}else{
-			response.sendRedirect("Home.jsp?search=failed");
+			if(session.getAttribute("userType") != null){
+				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=failed");
+			}else{
+				response.sendRedirect("Home.jsp?search=failed");
+			}
 		}
 	}
 
@@ -159,10 +179,10 @@ public class Controller extends HttpServlet {
 					if(u.getPassword().equals(session.getAttribute("password"))){
 						if(u instanceof Librarian){
 							response.sendRedirect("ConnectedLibrarian.jsp");
-							session.setAttribute("userType", "librarian");
+							session.setAttribute("userType", "ConnectedLibrarian");
 						}else if(u instanceof Member){
 							response.sendRedirect("ConnectedMember.jsp");
-							session.setAttribute("userType", "member");
+							session.setAttribute("userType", "ConnectedMember");
 						}
 					}else{
 						System.out.println("Mot de passe erroné");

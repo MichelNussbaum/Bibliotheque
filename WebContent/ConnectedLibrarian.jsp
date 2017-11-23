@@ -28,5 +28,17 @@
 		<input type="submit" value="Restituer" name="submit">
 	</form>
 </div>
+<% if(request.getParameter("search") != null && request.getParameter("search").equals("success")){ %>
+<jsp:include page="SearchResult.jsp">
+	<jsp:param value="<%= request.getParameter("title") %>" name="title"/>
+	<jsp:param value="<%= request.getParameter("author") %>" name="author"/>
+	<jsp:param value="<%= request.getParameter("nbOfCopy") %>" name="nbOfCopy"/>
+	<jsp:param value="<%= request.getParameter("remaining") %>" name="remaining"/>
+</jsp:include>
+<% }else{
+	if(request.getParameter("search") != null && request.getParameter("search").equals("failed")){ %>
+	<h3>Aucun livre ne correspond à votre recherhce</h3>	
+<% }
+} %>
 </body>
 </html>
