@@ -178,9 +178,21 @@ public class Controller extends HttpServlet {
 	}
 
 	private void addBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Book book = new Book(request.getParameter("author"), request.getParameter("title"), Integer.parseInt(request.getParameter("nbOfCopy")));
-		library.addBook(book);
+		String title = request.getParameter("title");
+		String author = request.getParameter("author");
+		int nbOfCopy = Integer.parseInt(request.getParameter("nbOfCopy"));
+		if (library.getBook(title, author) == null) {
+			Book book = new Book(author, title, nbOfCopy);
+			library.addBook(book);
+		} else {
+			if (nbOfCopy > 0) {
+				Book book = library.getBook(title, author);
+				book.setNbCopy(book.getNbCopy() + nbOfCopy);
+			}
+		}
+
 		response.sendRedirect("ConnectedLibrarian.jsp");
+
 	}
 
 	private void searchByAuthor(HttpServletRequest request, HttpServletResponse response) throws IOException {
