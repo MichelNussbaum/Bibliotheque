@@ -111,4 +111,13 @@ public class Library {
 		}
 		return null;
 	}
+	
+	public Reservation getReservation(Member member, Book book){
+		for (Reservation reservation : reservations) {
+			if (reservation.getMember().equals(member) && reservation.getBook().equals(book)){
+				return reservation;
+			}
+		}
+		return null;
+	}
 }

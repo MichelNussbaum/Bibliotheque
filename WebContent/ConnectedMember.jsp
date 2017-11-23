@@ -43,5 +43,12 @@
 	<h3>Plus d'exemplaire disponible à la réservation !</h3>	
 <% }
 } %>
+<% if(request.getParameter("bookingCancelation") != null && request.getParameter("bookingCancelation").equals("success")){ %>
+	<h3>Réservation annulée !</h3>
+<% }else{
+	if(request.getParameter("bookingCancelation") != null && request.getParameter("bookingCancelation").equals("failed")){ %>
+	<h3>Impossible d'annuler la réservation !</h3>	
+<% }
+} %>
 </body>
 </html>

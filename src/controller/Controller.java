@@ -120,14 +120,26 @@ public class Controller extends HttpServlet {
 			
 	}
 
-	private void cancelBookingBook(HttpServletRequest request, HttpServletResponse response) {
-		
+	private void cancelBookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession();
+		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
+		Member member = (Member)library.getUserFromLogin(session.getAttribute("login").toString());
+		Reservation reservation = library.getReservation(member, book); 
+		if (reservation != null){
+			library.getBorrows().remove(reservation);
+			response.sendRedirect("ConnectedMember.jsp?bookingCancelation=success");
+		}
+		else {
+			response.sendRedirect("ConnectedMember.jsp?bookingCancelation=failed");
+		}
 	}
 
 	private void bookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession();
 		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
-		if (library.nbReservationRemaining(book) != 0){
-			library.getReservations().add(new Reservation((Member)library.getUserFromLogin(request.getParameter("login")),book));
+		int remaining = library.nbReservationRemaining(book);
+		if (remaining >= 1){
+			library.getReservations().add(new Reservation((Member)library.getUserFromLogin(session.getAttribute("login").toString()),book));
 			response.sendRedirect("ConnectedMember.jsp?reservation=success");
 		}
 		else {
