@@ -120,9 +120,17 @@ public class Controller extends HttpServlet {
 			
 	}
 
-	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) {
+	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
-		
+		Member member = (Member)library.getUserFromLogin(request.getParameter("login"));
+		Borrow borrow = library.getBorrow(member, book); 
+		if (borrow != null){
+			library.getBorrows().remove(borrow);
+			response.sendRedirect("ConnectedLibrarian.jsp?bookRestitution=success");
+		}
+		else {
+			response.sendRedirect("ConnectedLibrarian.jsp?bookRestitution=failed");
+		}
 	}
 
 	private void borrowBook(HttpServletRequest request, HttpServletResponse response) throws IOException {

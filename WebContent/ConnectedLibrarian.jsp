@@ -47,5 +47,12 @@
 	<h3>Plus d'exemplaire disponible !</h3>	
 <% }
 } %>
+<% if(request.getParameter("bookRestitution") != null && request.getParameter("bookRestitution").equals("success")){ %>
+	<h3>Livre restitué !</h3>
+<% }else{
+	if(request.getParameter("bookRestitution") != null && request.getParameter("bookRestitution").equals("failed")){ %>
+	<h3>Ce livre ne correspond à aucun emprunt !</h3>	
+<% }
+} %>
 </body>
 </html>
