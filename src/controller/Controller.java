@@ -21,14 +21,13 @@ import model.User;
 public class Controller extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Library library;
-	private ArrayList<User> users;
+	
     /**
      * Default constructor. 
      */
     public Controller() {
         // TODO Auto-generated constructor stub
     	this.library = setupTestLibrary();
-    	this.users = setupTestUsers();
     }
 
 	private ArrayList<User> setupTestUsers() {
@@ -48,10 +47,10 @@ public class Controller extends HttpServlet {
 		books.add(maxEtLili);
 		books.add(bouleEtBill);
 		ArrayList<Borrow> borrows = new ArrayList<Borrow>();
-		borrows.add(new Borrow("Leslie", maxEtLili));
-		borrows.add(new Borrow("Michel", bouleEtBill));
+		borrows.add(new Borrow((Member)library.getUsers().get(1), maxEtLili));
+		borrows.add(new Borrow((Member)library.getUsers().get(1), bouleEtBill));
 		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
-		Library library = new Library(books,borrows,reservations); 
+		Library library = new Library(books,borrows,reservations, setupTestUsers()); 
 		return library;
 	}
 
@@ -89,9 +88,25 @@ public class Controller extends HttpServlet {
 				case "Supprimer":
 					deleteBook(request, response);
 					break;
+					
+				case "Emprunter":
+					borrowBook(request, response);
+					break;
 				}
-					 
+				
 		}
+	}
+
+	private void borrowBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
+		if (library.nbCopyRemaining(book) != 0){
+			library.getBorrows().add(new Borrow((Member)library.getUserFromLogin(request.getParameter("login")),book));
+			response.sendRedirect("ConnectedLibrarian.jsp?borrow=success");
+		}
+		else {
+			response.sendRedirect("ConnectedLibrarian.jsp?borrow=failed");
+		}
+					
 	}
 
 	private void deleteBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -154,7 +169,7 @@ public class Controller extends HttpServlet {
 			session= request.getSession(false);
 		}
 		if (session.getAttribute("login") != null){
-			for(User u : users){
+			for(User u : library.getUsers()){
 				if(u.getLogin().equals(session.getAttribute("login"))){
 					if(u.getPassword().equals(session.getAttribute("password"))){
 						if(u instanceof Librarian){
