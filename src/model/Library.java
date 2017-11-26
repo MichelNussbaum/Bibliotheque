@@ -57,10 +57,15 @@ public class Library {
 		this.books = books;
 	}
 	
-	public int nbCopyRemaining(Book book){
+	public int nbCopyRemaining(Book book) {
 		int nbOfCopyRemaining = book.getNbCopy();
 		for (Borrow borrow : borrows) {
-			if(borrow.getBook() == book){
+			if (borrow.getBook() == book) {
+				nbOfCopyRemaining--;
+			}
+		}
+		for (Reservation reservation : reservations) {
+			if (reservation.getBook() == book) {
 				nbOfCopyRemaining--;
 			}
 		}
@@ -83,6 +88,14 @@ public class Library {
 	
 	public void deleteBook(Book book){
 		books.remove(book);
+	}
+	
+	public void deleteCopyBook(Book book, int copyToDelete){
+		for (Book b: books) {
+			if (b.equals(book)){
+				b.setNbCopy(b.getNbCopy() - copyToDelete);
+			}
+		}
 	}
 	
 	public Book getBook(String title, String author){

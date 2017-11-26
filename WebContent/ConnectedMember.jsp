@@ -1,3 +1,5 @@
+<% if ( session.getAttribute("userType").equals("ConnectedMember")){
+%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -24,31 +26,46 @@
 		<input type="submit" name="submit" value="Annuler reservation">
 	</form>
 </div>
-<% if(request.getParameter("search") != null && request.getParameter("search").equals("success")){ %>
-<jsp:include page="SearchResult.jsp">
-	<jsp:param value="<%= request.getParameter("title") %>" name="title"/>
-	<jsp:param value="<%= request.getParameter("author") %>" name="author"/>
-	<jsp:param value="<%= request.getParameter("nbOfCopy") %>" name="nbOfCopy"/>
-	<jsp:param value="<%= request.getParameter("remaining") %>" name="remaining"/>
-</jsp:include>
+<% if(request.getAttribute("search") != null && request.getAttribute("search").equals("success")){ %>
+ <%@page import="java.util.ArrayList"%> 
+ <%@page import="model.Book"%>
+ <%@page import="model.Library"%> 
+ 	<h1>Voici le résultat de votre recherche : </h1>
+ 	<% ArrayList<Book> listOfBooks = new ArrayList<Book>(); 
+ 	Library library = (Library) request.getAttribute("library"); 
+	listOfBooks = (ArrayList<Book>) request.getAttribute("listOfBooks");
+ 	for (Book book: listOfBooks) {%> 
+ <jsp:include page="SearchResult.jsp">
+ 	<jsp:param value="<%= book.getTitle()  %>" name="title" /> 
+ 	<jsp:param value="<%= book.getAuthor() %>" name="author" /> 
+ 	<jsp:param value="<%= book.getNbCopy() %>" name="nbOfCopy" /> 
+ 	<jsp:param value="<%= library.nbCopyRemaining(book) %>" name="remaining"/> 
+ </jsp:include> 
+ 		<%} %> 
 <% }else{
-	if(request.getParameter("search") != null && request.getParameter("search").equals("failed")){ %>
+	if(request.getAttribute("search") != null && request.getAttribute("search").equals("failed")){ %>
 	<h3>Aucun livre ne correspond à votre recherhce</h3>	
 <% }
 } %>
-<% if(request.getParameter("reservation") != null && request.getParameter("reservation").equals("success")){ %>
+<% if(request.getAttribute("reservation") != null && request.getAttribute("reservation").equals("success")){ %>
 	<h3>Livre réservé !</h3>
 <% }else{
-	if(request.getParameter("reservation") != null && request.getParameter("reservation").equals("failed")){ %>
+	if(request.getAttribute("reservation") != null && request.getAttribute("reservation").equals("failed")){ %>
 	<h3>Plus d'exemplaire disponible à la réservation !</h3>	
 <% }
 } %>
-<% if(request.getParameter("bookingCancelation") != null && request.getParameter("bookingCancelation").equals("success")){ %>
+<% if(request.getAttribute("bookingCancelation") != null && request.getAttribute("bookingCancelation").equals("success")){ %>
 	<h3>Réservation annulée !</h3>
 <% }else{
-	if(request.getParameter("bookingCancelation") != null && request.getParameter("bookingCancelation").equals("failed")){ %>
+	if(request.getAttribute("bookingCancelation") != null && request.getAttribute("bookingCancelation").equals("failed")){ %>
 	<h3>Impossible d'annuler la réservation !</h3>	
 <% }
 } %>
 </body>
 </html>
+<% } else { %>
+<h3>Vous n'êtes pas connecté !</h3>
+<%
+}%>
+
+

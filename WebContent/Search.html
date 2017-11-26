@@ -1,8 +1,16 @@
 <h3>Recherche</h3>
+<h4>Entrer un titre et/ou un auteur </h4>
+<!-- <form action="Controller" method="POST"> -->
+<!-- 	Votre recherche: <input type="text" name="titleOrAuthor"><br> -->
+<!-- 	Recherche par : Titre <input type="radio" name="typeOfSearch" value="title" checked> -->
+<!-- 	Auteur <input type="radio" name="typeOfSearch" value="author"><br> -->
+<!-- 	<input type="hidden" name="form" value="search"> -->
+<!-- 	<input type="submit" value="Valider"> -->
+<!-- </form> -->
+
 <form action="Controller" method="POST">
-	Votre recherche: <input type="text" name="titleOrAuthor"><br>
-	Recherche par : Titre <input type="radio" name="typeOfSearch" value="title" checked>
-	Auteur <input type="radio" name="typeOfSearch" value="author"><br>
+	Titre : <input type="text" name="title"><br>
+	Auteur : <input type="text" name="author"><br>
 	<input type="hidden" name="form" value="search">
-	<input type="submit" value="Valider">
+	<input type="submit" value="Rechercher">
 </form>

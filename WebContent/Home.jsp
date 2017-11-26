@@ -21,16 +21,25 @@
 	</form>
 </div>
 
-<% if(request.getParameter("search") != null && request.getParameter("search").equals("success")){ %>
-<jsp:include page="SearchResult.jsp">
-	<jsp:param value="<%= request.getParameter("title") %>" name="title"/>
-	<jsp:param value="<%= request.getParameter("author") %>" name="author"/>
-	<jsp:param value="<%= request.getParameter("nbOfCopy") %>" name="nbOfCopy"/>
-	<jsp:param value="<%= request.getParameter("remaining") %>" name="remaining"/>
-</jsp:include>
+<% if(request.getAttribute("search") != null && request.getAttribute("search").equals("success")){ %>
+ <%@page import="java.util.ArrayList"%> 
+ <%@page import="model.Book"%>
+ <%@page import="model.Library"%> 
+ 	<h1>Voici le résultat de votre recherche : </h1>
+ 	<% ArrayList<Book> listOfBooks = new ArrayList<Book>(); 
+ 	Library library = (Library) request.getAttribute("library"); 
+	listOfBooks = (ArrayList<Book>) request.getAttribute("listOfBooks");
+ 	for (Book book: listOfBooks) {%> 
+ <jsp:include page="SearchResult.jsp">
+ 	<jsp:param value="<%= book.getTitle()  %>" name="title" /> 
+ 	<jsp:param value="<%= book.getAuthor() %>" name="author" /> 
+ 	<jsp:param value="<%= book.getNbCopy() %>" name="nbOfCopy" /> 
+ 	<jsp:param value="<%= library.nbCopyRemaining(book) %>" name="remaining"/> 
+ </jsp:include> 
+ 		<%} %> 
 <% }else{
-	if(request.getParameter("search") != null && request.getParameter("search").equals("failed")){ %>
-	<h3>Aucun livre ne correspond à votre recherhce</h3>	
+	if(request.getAttribute("search") != null && request.getAttribute("search").equals("failed")){ %>
+	<h3>Aucun livre ne correspond à votre recherche</h3>	
 <% }
 } %>
 

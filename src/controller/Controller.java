@@ -44,15 +44,25 @@ public class Controller extends HttpServlet {
 		ArrayList<User> users = setupTestUsers();
 		
 		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",3);
+		Book maxEtLili2 = new Book("Jacques","Max et Lili en vacances",6);
 		Book bouleEtBill = new Book("Michel","Boule et Bill en vacances",2);
+		Book bouleEtBill2 = new Book("Paul","Boule et Bill en vacances",20);
+		Book mich = new Book("Michel", "Boule et Bill à l'école", 14);
+		Book leslie = new Book("Leslie", "Max et Lili à l'école", 8);
 		ArrayList<Book> books = new ArrayList<Book>();
 		books.add(maxEtLili);
 		books.add(bouleEtBill);
+		books.add(leslie);
+		books.add(bouleEtBill2);
+		books.add(maxEtLili2);
+		books.add(mich);
 		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
 		ArrayList<Borrow> borrows = new ArrayList<Borrow>();
 		Library library = new Library(books,borrows,reservations, users); 		
 		borrows.add(new Borrow((Member)library.getUsers().get(1), maxEtLili));
 		borrows.add(new Borrow((Member)library.getUsers().get(1), bouleEtBill));
+		borrows.add(new Borrow((Member)library.getUsers().get(1), mich));
+		borrows.add(new Borrow((Member)library.getUsers().get(1), maxEtLili2));
 		return library;
 	}
 
@@ -72,32 +82,53 @@ public class Controller extends HttpServlet {
 			break;
 			
 			case "search":
-				if(request.getParameter("typeOfSearch").equals("title")){
-					searchByTitle(request,response);
-				}else if(request.getParameter("typeOfSearch").equals("author")){
-					searchByAuthor(request,response);
-				}else{
+				search(request, response);
+				
+			break;
+			
+			case "actionLibrarian":
+				switch (request.getParameter("submit")) {
+				case "Ajouter/Supprimer livre/exemplaire":
+					request.setAttribute("addDelete", "success");;
+					break;
+					
+				case "Emprunter/Restituer un livre":
+					request.setAttribute("borrowRestitute", "success");
+					break;
+
+				default:
+					break;
+				}
+				request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);
+			break;
+			
+			case "addDeleteBook":
+				switch (request.getParameter("submit")) {
+				case "Ajouter":
+					addBook(request, response);
+					break;
+					
+				case "Supprimer":
+					deleteBook(request, response);
+					break;
+
+				default:
 					break;
 				}
 			break;
 			
-			case "actionLibrarian":
-				switch( request.getParameter("submit")){
-					case "Ajouter":
-						addBook(request, response);
-						break;
+			case "borrowRestituteBook":
+				switch (request.getParameter("submit")) {
+				case "Emprunter":
+					borrowBook(request, response);
+					break;
 					
-					case "Supprimer":
-						deleteBook(request, response);
-						break;
-						
-					case "Emprunter":
-						borrowBook(request, response);
-						break;
-						
-					case "Restituer":
-						bookRestitution(request, response);
-						break;
+				case "Restituer":
+					bookRestitution(request, response);
+					break;
+
+				default:
+					break;
 				}
 			break;
 			
@@ -120,127 +151,190 @@ public class Controller extends HttpServlet {
 			
 	}
 
-	private void cancelBookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void cancelBookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		HttpSession session = request.getSession();
 		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
 		Member member = (Member)library.getUserFromLogin(session.getAttribute("login").toString());
 		Reservation reservation = library.getReservation(member, book); 
 		if (reservation != null){
-			library.getBorrows().remove(reservation);
-			response.sendRedirect("ConnectedMember.jsp?bookingCancelation=success");
+			library.getReservations().remove(reservation);
+			request.setAttribute("bookingCancelation", "success");
 		}
 		else {
-			response.sendRedirect("ConnectedMember.jsp?bookingCancelation=failed");
+			request.setAttribute("bookingCancelation", "failed");
 		}
+		request.getRequestDispatcher("ConnectedMember.jsp").forward(request, response);
 	}
 
-	private void bookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void bookingBook(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		HttpSession session = request.getSession();
 		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
-		int remaining = library.nbReservationRemaining(book);
+		int remaining = library.nbCopyRemaining(book);
 		if (remaining >= 1){
 			library.getReservations().add(new Reservation((Member)library.getUserFromLogin(session.getAttribute("login").toString()),book));
-			response.sendRedirect("ConnectedMember.jsp?reservation=success");
+			request.setAttribute("reservation", "success");
 		}
 		else {
-			response.sendRedirect("ConnectedMember.jsp?reservation=failed");
+			request.setAttribute("reservation", "failed");
 		}
+		request.getRequestDispatcher("ConnectedMember.jsp").forward(request, response);
 	}
 
-	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void bookRestitution(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
 		Member member = (Member)library.getUserFromLogin(request.getParameter("login"));
 		Borrow borrow = library.getBorrow(member, book); 
 		if (borrow != null){
 			library.getBorrows().remove(borrow);
-			response.sendRedirect("ConnectedLibrarian.jsp?bookRestitution=success");
+			request.setAttribute("bookRestitution", "success");
 		}
 		else {
-			response.sendRedirect("ConnectedLibrarian.jsp?bookRestitution=failed");
+			request.setAttribute("bookRestitution", "failed");
 		}
+		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);
 	}
 
-	private void borrowBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Book book =  library.getBook(request.getParameter("title"), request.getParameter("author"));
-		if (library.nbCopyRemaining(book) != 0){
-			library.getBorrows().add(new Borrow((Member)library.getUserFromLogin(request.getParameter("login")),book));
-			response.sendRedirect("ConnectedLibrarian.jsp?borrow=success");
+	private void borrowBook(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		Book book = library.getBook(request.getParameter("title"), request.getParameter("author"));
+		Member member = (Member) library.getUserFromLogin(request.getParameter("login"));
+		boolean reserved = false;
+		if (library.getReservation(member, book) != null) {
+			if (library.getReservation(member, book).getBook().equals(book)) {
+				library.getReservations().remove(library.getReservation(member, book));
+				reserved = true;
+			}				
 		}
+		if (library.nbCopyRemaining(book) > 0 && book != null || reserved && book != null) {
+			library.getBorrows().add(new Borrow(member, book));
+			request.setAttribute("borrow", "success");
+		}
+
 		else {
-			response.sendRedirect("ConnectedLibrarian.jsp?borrow=failed");
+			request.setAttribute("borrow", "failed");
 		}
-					
+		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);
 	}
 
-	private void deleteBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		library.deleteBook(library.getBook(request.getParameter("title"), request.getParameter("author")));
-		response.sendRedirect("ConnectedLibrarian.jsp");
+	private void deleteBook(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		String title = request.getParameter("title");
+		String author = request.getParameter("author");
+		int nbOfCopy = 0;
+		boolean borrowed = false;
+		boolean reserved = false;		
+		Book book = library.getBook(request.getParameter("title"), request.getParameter("author"));
+		if(library.getBook(title, author) == null ){
+			request.setAttribute("delete", "failed");
+		}
+		else{
+			if (!request.getParameter("nbOfCopy").equals("")){
+				 nbOfCopy = Integer.parseInt(request.getParameter("nbOfCopy"));
+				 if (nbOfCopy <= library.nbCopyRemaining(book)){
+					 request.setAttribute("delete", "success");
+					library.deleteCopyBook(book, nbOfCopy);
+				 }
+				 else{
+					 request.setAttribute("delete", "failed"); 
+				 }
+			}
+			else{
+				for (Borrow borrow : library.getBorrows()) {
+					if (borrow.getBook().equals(library.getBook(title, author))){
+						borrowed = true;
+						break;
+						}
+				for (Reservation reservation : library.getReservations()) {
+					if (reservation.getBook().equals(library.getBook(title, author))){
+						reserved = true;
+						break;
+						}
+					}
+				}
+				if ( !borrowed && !reserved){
+					request.setAttribute("delete", "success");
+					library.deleteBook(book);
+				}
+				else{
+					request.setAttribute("delete", "failed");
+				}
+			}		
+		}
+		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);		
 	}
 
-	private void addBook(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void addBook(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		String title = request.getParameter("title");
 		String author = request.getParameter("author");
 		int nbOfCopy = Integer.parseInt(request.getParameter("nbOfCopy"));
 		if (library.getBook(title, author) == null) {
 			Book book = new Book(author, title, nbOfCopy);
 			library.addBook(book);
+			request.setAttribute("add", "success");
 		} else {
 			if (nbOfCopy > 0) {
 				Book book = library.getBook(title, author);
 				book.setNbCopy(book.getNbCopy() + nbOfCopy);
+				request.setAttribute("add", "success");
+			}
+			else{
+				request.setAttribute("add", "failed");
 			}
 		}
-
-		response.sendRedirect("ConnectedLibrarian.jsp");
-
+		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);
 	}
 
-	private void searchByAuthor(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Book b = null;
+	private void searchByAuthor(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		ArrayList<Book> listOfBooks = new ArrayList<>();
+		String author = request.getParameter("author");
 		for (Book book : library.getBooks()) {
-			String author = request.getParameter("titleOrAuthor");
 			if(author.equals(book.getAuthor())){
-				b = book;
+				listOfBooks.add(book);
 			}
 		}
 		HttpSession session = request.getSession();
-		if(b!=null){
+		if(listOfBooks.size() > 0){
+			request.setAttribute("search", "success");
+			request.setAttribute("listOfBooks", listOfBooks);
+			request.setAttribute("library", library);
 			if(session.getAttribute("userType") != null){
-				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
 			}else{ 
-				response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+				request.getRequestDispatcher("Home.jsp").forward(request, response);
 			}
 		}else{
+			request.setAttribute("search", "failed");
 			if(session.getAttribute("userType") != null){
-				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=failed");
+				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
 			}else{
-				response.sendRedirect("Home.jsp?search=failed");
+				request.getRequestDispatcher("Home.jsp").forward(request, response);
 			}
 		}
 	}
 
-	private void searchByTitle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Book b = null;
+	private void searchByTitle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		ArrayList<Book> listOfBooks = new ArrayList<>();
+		String title = request.getParameter("title");
 		for (Book book : library.getBooks()) {
-			String title = request.getParameter("titleOrAuthor");
 			if(title.equals(book.getTitle())){
-				b = book;
+				listOfBooks.add(book);
 			}
 		}
 		HttpSession session = request.getSession();
-		if(b!=null){
-			
+		if(listOfBooks.size() > 0){
+			request.setAttribute("search", "success");
+			request.setAttribute("listOfBooks", listOfBooks);
+			request.setAttribute("library", library);
 			if(session.getAttribute("userType") != null){
-				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
 			}else{ 
-				response.sendRedirect("Home.jsp?search=success&title="+b.getTitle()+"&author="+b.getAuthor()+"&nbOfCopy="+b.getNbCopy()+"&remaining="+library.nbCopyRemaining(b));
+				request.getRequestDispatcher("Home.jsp").forward(request, response);
 			}
 			
 		}else{
+			request.setAttribute("search", "failed");
 			if(session.getAttribute("userType") != null){
-				response.sendRedirect(session.getAttribute("userType").toString()+".jsp?search=failed");
+				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
 			}else{
-				response.sendRedirect("Home.jsp?search=failed");
+				request.getRequestDispatcher("Home.jsp").forward(request, response);
 			}
 		}
 	}
@@ -275,13 +369,60 @@ public class Controller extends HttpServlet {
 							session.setAttribute("userType", "ConnectedMember");
 						}
 					}else{
-						System.out.println("Mot de passe erronÃ©");
+						System.out.println("Mot de passe erroné");
 					}
 				}
 			}
 		}else{
 			response.sendRedirect("Home.jsp");
 		}
+	}
+	
+	private void search(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+		if (request.getParameter("title").isEmpty() && request.getParameter("author").isEmpty()){
+			request.setAttribute("search", "failed");
+		}
+		else if ( !request.getParameter("title").isEmpty() && request.getParameter("author").isEmpty()){
+			searchByTitle(request, response);
+		}
+		else if ( request.getParameter("title").isEmpty() && !request.getParameter("author").isEmpty()){
+			searchByAuthor(request, response);
+		}
+		else{
+			searchByTitleAndAuthor(request,response);
+		}
+		
+	}
+	
+	private void searchByTitleAndAuthor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		ArrayList<Book> listOfBooks = new ArrayList<>();
+		String title = request.getParameter("title");
+		String author = request.getParameter("author");
+		for (Book book : library.getBooks()) {			
+			if(title.equals(book.getTitle()) && author.equals(book.getAuthor())){
+				listOfBooks.add(book);
+			}
+		}
+		HttpSession session = request.getSession();
+		if(listOfBooks.size() > 0){
+			request.setAttribute("search", "success");
+			request.setAttribute("listOfBooks", listOfBooks);
+			request.setAttribute("library", library);
+			if(session.getAttribute("userType") != null){
+				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
+			}else{ 
+				request.getRequestDispatcher("Home.jsp").forward(request, response);
+			}
+			
+		}else{
+			request.setAttribute("search", "failed");
+			if(session.getAttribute("userType") != null){
+				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
+			}else{
+				request.getRequestDispatcher("Home.jsp").forward(request, response);
+			}
+		}
+		
 	}
 
 	/**
