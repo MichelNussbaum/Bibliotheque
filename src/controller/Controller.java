@@ -198,18 +198,23 @@ public class Controller extends HttpServlet {
 		Book book = library.getBook(request.getParameter("title"), request.getParameter("author"));
 		Member member = (Member) library.getUserFromLogin(request.getParameter("login"));
 		boolean reserved = false;
-		if (library.getReservation(member, book) != null) {
-			if (library.getReservation(member, book).getBook().equals(book)) {
-				library.getReservations().remove(library.getReservation(member, book));
-				reserved = true;
-			}				
-		}
-		if (library.nbCopyRemaining(book) > 0 && book != null || reserved && book != null) {
-			library.getBorrows().add(new Borrow(member, book));
-			request.setAttribute("borrow", "success");
-		}
+		if( library.getUsers().contains(member)){
+			if (library.getReservation(member, book) != null) {
+				if (library.getReservation(member, book).getBook().equals(book)) {
+					library.getReservations().remove(library.getReservation(member, book));
+					reserved = true;
+				}				
+			}
+			if (library.nbCopyRemaining(book) > 0 && book != null || reserved && book != null) {
+				library.getBorrows().add(new Borrow(member, book));
+				request.setAttribute("borrow", "success");
+			}
 
-		else {
+			else {
+				request.setAttribute("borrow", "failed");
+			}			
+		}
+		else{
 			request.setAttribute("borrow", "failed");
 		}
 		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);

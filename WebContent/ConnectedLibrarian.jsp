@@ -24,17 +24,6 @@
 		<input type="submit" value="Ajouter/Supprimer livre/exemplaire" name="submit">
 		<input type="submit" value="Emprunter/Restituer un livre" name="submit">
 	</form>
-<!-- 	<form action="Controller" method="POST"> -->
-<!-- 		<input name="form" value="actionLibrarian" type="hidden"> -->
-<!-- 		Titre : <input name="title" type="text"><br> -->
-<!-- 		Auteur : <input name="author" type="text"><br> -->
-<!-- 		Nombre d'exemplaires : <input name="nbOfCopy" type="number"><br> -->
-<!-- 		Login du membre :<input name="login" type="text"><br> -->
-<!-- 		<input type="submit" value="Ajouter" name="submit" > -->
-<!-- 		<input type="submit" value="Supprimer" name="submit"> -->
-<!-- 		<input type="submit" value="Emprunter" name="submit"> -->
-<!-- 		<input type="submit" value="Restituer" name="submit"> -->
-<!-- 	</form> -->
 </div>
 <% if(request.getAttribute("addDelete") != null && request.getAttribute("addDelete").equals("success")){ %>
 	<%@ include file="addDeleteBook.html" %>
