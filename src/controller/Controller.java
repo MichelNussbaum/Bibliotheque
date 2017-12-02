@@ -2,6 +2,7 @@ package controller;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,10 +12,13 @@ import javax.servlet.http.HttpSession;
 
 import model.Book;
 import model.Borrow;
+import model.ConnectionSystemInterface;
 import model.Librarian;
 import model.Library;
 import model.Member;
 import model.Reservation;
+import model.SearchBean;
+import model.SearchInterface;
 import model.User;
 
 @WebServlet("/Controller")
@@ -22,25 +26,22 @@ public class Controller extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Library library;
 	
+	@EJB
+	SearchInterface search;
+	
+	@EJB
+	ConnectionSystemInterface connectionSystemInterface;
+	
     /**
      * Default constructor. 
      */
     public Controller() {
-        // TODO Auto-generated constructor stub
-    	this.library = setupTestLibrary();
+    	init();
     }
 
-	private ArrayList<User> setupTestUsers() {
-		ArrayList<User> users = new ArrayList<User>();
-		User u1 = new Librarian("Leslie", "ros");
-		User u2 = new Member("Michel","nuss");
-		users.add(u1);
-		users.add(u2);
-		return users;
-	}
-
-	private Library setupTestLibrary() {
+	public void init() {
 		// TODO Auto-generated method stub
+		System.out.println("Init ok " + this);
 		ArrayList<User> users = setupTestUsers();
 		
 		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",3);
@@ -57,32 +58,41 @@ public class Controller extends HttpServlet {
 		books.add(maxEtLili2);
 		books.add(mich);
 		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
-		ArrayList<Borrow> borrows = new ArrayList<Borrow>();
-		Library library = new Library(books,borrows,reservations, users); 		
-		borrows.add(new Borrow((Member)library.getUsers().get(1), maxEtLili));
-		borrows.add(new Borrow((Member)library.getUsers().get(1), bouleEtBill));
-		borrows.add(new Borrow((Member)library.getUsers().get(1), mich));
-		borrows.add(new Borrow((Member)library.getUsers().get(1), maxEtLili2));
-		return library;
+		ArrayList<Borrow> borrows = new ArrayList<Borrow>();		
+		borrows.add(new Borrow((Member)users.get(1), maxEtLili));
+		borrows.add(new Borrow((Member)users.get(1), bouleEtBill));
+		borrows.add(new Borrow((Member)users.get(1), mich));
+		borrows.add(new Borrow((Member)users.get(1), maxEtLili2));
+		library = new Library(books, borrows, reservations, users);
 	}
 
+	private ArrayList<User> setupTestUsers() {
+		ArrayList<User> users = new ArrayList<User>();
+		User u1 = new Librarian("Leslie", "ros");
+		User u2 = new Member("Michel","nuss");
+		users.add(u1);
+		users.add(u2);
+		return users;
+	}
+	
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 //		response.getWriter().append("Served at: ").append(request.getContextPath());
+	System.out.println("library : " + library);
 		switch(request.getParameter("form")){
 			case "connection":
-				connection(request,response);
+				connectionSystemInterface.connection(request,response, library);
 			break;
 			
 			case "deconnection":
-				deconnection(request,response);
+				connectionSystemInterface.deconnection(request,response);
 			break;
 			
 			case "search":
-				search(request, response);
+				search.search(request, response, library);
 				
 			break;
 			
@@ -287,148 +297,46 @@ public class Controller extends HttpServlet {
 		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);
 	}
 
-	private void searchByAuthor(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		ArrayList<Book> listOfBooks = new ArrayList<>();
-		String author = request.getParameter("author");
-		for (Book book : library.getBooks()) {
-			if(author.equals(book.getAuthor())){
-				listOfBooks.add(book);
-			}
-		}
-		HttpSession session = request.getSession();
-		if(listOfBooks.size() > 0){
-			request.setAttribute("search", "success");
-			request.setAttribute("listOfBooks", listOfBooks);
-			request.setAttribute("library", library);
-			if(session.getAttribute("userType") != null){
-				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
-			}else{ 
-				request.getRequestDispatcher("Home.jsp").forward(request, response);
-			}
-		}else{
-			request.setAttribute("search", "failed");
-			if(session.getAttribute("userType") != null){
-				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
-			}else{
-				request.getRequestDispatcher("Home.jsp").forward(request, response);
-			}
-		}
-	}
 
-	private void searchByTitle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		ArrayList<Book> listOfBooks = new ArrayList<>();
-		String title = request.getParameter("title");
-		for (Book book : library.getBooks()) {
-			if(title.equals(book.getTitle())){
-				listOfBooks.add(book);
-			}
-		}
-		HttpSession session = request.getSession();
-		if(listOfBooks.size() > 0){
-			request.setAttribute("search", "success");
-			request.setAttribute("listOfBooks", listOfBooks);
-			request.setAttribute("library", library);
-			if(session.getAttribute("userType") != null){
-				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
-			}else{ 
-				request.getRequestDispatcher("Home.jsp").forward(request, response);
-			}
-			
-		}else{
-			request.setAttribute("search", "failed");
-			if(session.getAttribute("userType") != null){
-				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
-			}else{
-				request.getRequestDispatcher("Home.jsp").forward(request, response);
-			}
-		}
-	}
-
-	private void deconnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		request.getSession().invalidate();
-		response.sendRedirect("Home.jsp");
-	}
-
-	private void connection(HttpServletRequest request,HttpServletResponse response) throws IOException {
-		// TODO Auto-generated method stub
-		HttpSession session;
-		if (request.getParameter("login") != null){
-			String login = request.getParameter("login"); 
-			String password = request.getParameter("password");
-			session = request.getSession();
-			session.setAttribute("login", login);
-			session.setAttribute("password", password);
-		}
-		else{
-			session= request.getSession(false);
-		}
-		if (session.getAttribute("login") != null){
-			for(User u : library.getUsers()){
-				if(u.getLogin().equals(session.getAttribute("login"))){
-					if(u.getPassword().equals(session.getAttribute("password"))){
-						if(u instanceof Librarian){
-							response.sendRedirect("ConnectedLibrarian.jsp");
-							session.setAttribute("userType", "ConnectedLibrarian");
-						}else if(u instanceof Member){
-							response.sendRedirect("ConnectedMember.jsp");
-							session.setAttribute("userType", "ConnectedMember");
-						}
-					}else{
-						System.out.println("Mot de passe erroné");
-					}
-				}
-			}
-		}else{
-			response.sendRedirect("Home.jsp");
-		}
-	}
+//	private void deconnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//		request.getSession().invalidate();
+//		response.sendRedirect("Home.jsp");
+//	}
+//
+//	private void connection(HttpServletRequest request,HttpServletResponse response) throws IOException {
+//		// TODO Auto-generated method stub
+//		HttpSession session;
+//		if (request.getParameter("login") != null){
+//			String login = request.getParameter("login"); 
+//			String password = request.getParameter("password");
+//			session = request.getSession();
+//			session.setAttribute("login", login);
+//			session.setAttribute("password", password);
+//		}
+//		else{
+//			session= request.getSession(false);
+//		}
+//		if (session.getAttribute("login") != null){
+//			for(User u : library.getUsers()){
+//				if(u.getLogin().equals(session.getAttribute("login"))){
+//					if(u.getPassword().equals(session.getAttribute("password"))){
+//						if(u instanceof Librarian){
+//							response.sendRedirect("ConnectedLibrarian.jsp");
+//							session.setAttribute("userType", "ConnectedLibrarian");
+//						}else if(u instanceof Member){
+//							response.sendRedirect("ConnectedMember.jsp");
+//							session.setAttribute("userType", "ConnectedMember");
+//						}
+//					}else{
+//						System.out.println("Mot de passe erroné");
+//					}
+//				}
+//			}
+//		}else{
+//			response.sendRedirect("Home.jsp");
+//		}
+//	}
 	
-	private void search(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
-		if (request.getParameter("title").isEmpty() && request.getParameter("author").isEmpty()){
-			request.setAttribute("search", "failed");
-		}
-		else if ( !request.getParameter("title").isEmpty() && request.getParameter("author").isEmpty()){
-			searchByTitle(request, response);
-		}
-		else if ( request.getParameter("title").isEmpty() && !request.getParameter("author").isEmpty()){
-			searchByAuthor(request, response);
-		}
-		else{
-			searchByTitleAndAuthor(request,response);
-		}
-		
-	}
-	
-	private void searchByTitleAndAuthor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ArrayList<Book> listOfBooks = new ArrayList<>();
-		String title = request.getParameter("title");
-		String author = request.getParameter("author");
-		for (Book book : library.getBooks()) {			
-			if(title.equals(book.getTitle()) && author.equals(book.getAuthor())){
-				listOfBooks.add(book);
-			}
-		}
-		HttpSession session = request.getSession();
-		if(listOfBooks.size() > 0){
-			request.setAttribute("search", "success");
-			request.setAttribute("listOfBooks", listOfBooks);
-			request.setAttribute("library", library);
-			if(session.getAttribute("userType") != null){
-				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
-			}else{ 
-				request.getRequestDispatcher("Home.jsp").forward(request, response);
-			}
-			
-		}else{
-			request.setAttribute("search", "failed");
-			if(session.getAttribute("userType") != null){
-				request.getRequestDispatcher(session.getAttribute("userType").toString()+".jsp").forward(request, response);
-			}else{
-				request.getRequestDispatcher("Home.jsp").forward(request, response);
-			}
-		}
-		
-	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)

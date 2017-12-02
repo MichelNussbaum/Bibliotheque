@@ -2,6 +2,10 @@ package model;
 
 import java.util.ArrayList;
 
+import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+
 import org.apache.jasper.tagplugins.jstl.ForEach;
 
 public class Library {
@@ -11,13 +15,46 @@ public class Library {
 	private ArrayList<User> users;
 
 	public Library(ArrayList<Book> books,ArrayList<Borrow> borrows, ArrayList<Reservation> reservations, ArrayList<User> users) {
-		super();
 		this.books = books;
 		this.borrows = borrows;
 		this.reservations = reservations;
 		this.users = users;
 	}
+	
+	public void init() {
+		// TODO Auto-generated method stub
+		System.out.println("Init ok " + this);
+		ArrayList<User> users = setupTestUsers();
+		
+		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",3);
+		Book maxEtLili2 = new Book("Jacques","Max et Lili en vacances",6);
+		Book bouleEtBill = new Book("Michel","Boule et Bill en vacances",2);
+		Book bouleEtBill2 = new Book("Paul","Boule et Bill en vacances",20);
+		Book mich = new Book("Michel", "Boule et Bill à l'école", 14);
+		Book leslie = new Book("Leslie", "Max et Lili à l'école", 8);
+		ArrayList<Book> books = new ArrayList<Book>();
+		books.add(maxEtLili);
+		books.add(bouleEtBill);
+		books.add(leslie);
+		books.add(bouleEtBill2);
+		books.add(maxEtLili2);
+		books.add(mich);
+		ArrayList<Reservation> reservations = new ArrayList<Reservation>();
+		ArrayList<Borrow> borrows = new ArrayList<Borrow>();		
+		borrows.add(new Borrow((Member)users.get(1), maxEtLili));
+		borrows.add(new Borrow((Member)users.get(1), bouleEtBill));
+		borrows.add(new Borrow((Member)users.get(1), mich));
+		borrows.add(new Borrow((Member)users.get(1), maxEtLili2));
+	}
 
+	private ArrayList<User> setupTestUsers() {
+		ArrayList<User> users = new ArrayList<User>();
+		User u1 = new Librarian("Leslie", "ros");
+		User u2 = new Member("Michel","nuss");
+		users.add(u1);
+		users.add(u2);
+		return users;
+	}
 	
 	public ArrayList<User> getUsers() {
 		return users;
