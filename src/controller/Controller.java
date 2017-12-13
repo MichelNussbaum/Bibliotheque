@@ -3,6 +3,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.ejb.EJB;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -41,7 +45,6 @@ public class Controller extends HttpServlet {
 
 	public void init() {
 		// TODO Auto-generated method stub
-		System.out.println("Init ok " + this);
 		ArrayList<User> users = setupTestUsers();
 		
 		Book maxEtLili = new Book("Leslie","Max et Lili en vacances",3);
@@ -63,6 +66,7 @@ public class Controller extends HttpServlet {
 		borrows.add(new Borrow((Member)users.get(1), bouleEtBill));
 		borrows.add(new Borrow((Member)users.get(1), mich));
 		borrows.add(new Borrow((Member)users.get(1), maxEtLili2));
+
 		library = new Library(books, borrows, reservations, users);
 	}
 
@@ -81,7 +85,6 @@ public class Controller extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 //		response.getWriter().append("Served at: ").append(request.getContextPath());
-	System.out.println("library : " + library);
 		switch(request.getParameter("form")){
 			case "connection":
 				connectionSystemInterface.connection(request,response, library);
@@ -296,46 +299,6 @@ public class Controller extends HttpServlet {
 		}
 		request.getRequestDispatcher("ConnectedLibrarian.jsp").forward(request, response);
 	}
-
-
-//	private void deconnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//		request.getSession().invalidate();
-//		response.sendRedirect("Home.jsp");
-//	}
-//
-//	private void connection(HttpServletRequest request,HttpServletResponse response) throws IOException {
-//		// TODO Auto-generated method stub
-//		HttpSession session;
-//		if (request.getParameter("login") != null){
-//			String login = request.getParameter("login"); 
-//			String password = request.getParameter("password");
-//			session = request.getSession();
-//			session.setAttribute("login", login);
-//			session.setAttribute("password", password);
-//		}
-//		else{
-//			session= request.getSession(false);
-//		}
-//		if (session.getAttribute("login") != null){
-//			for(User u : library.getUsers()){
-//				if(u.getLogin().equals(session.getAttribute("login"))){
-//					if(u.getPassword().equals(session.getAttribute("password"))){
-//						if(u instanceof Librarian){
-//							response.sendRedirect("ConnectedLibrarian.jsp");
-//							session.setAttribute("userType", "ConnectedLibrarian");
-//						}else if(u instanceof Member){
-//							response.sendRedirect("ConnectedMember.jsp");
-//							session.setAttribute("userType", "ConnectedMember");
-//						}
-//					}else{
-//						System.out.println("Mot de passe erroné");
-//					}
-//				}
-//			}
-//		}else{
-//			response.sendRedirect("Home.jsp");
-//		}
-//	}
 	
 
 	/**
